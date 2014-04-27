@@ -1,12 +1,19 @@
-# put this file in ~/.vagrant.d
-# make a ~/.vagrant.d/manifests directory with a 'default.pp' Puppet manifest
+# Basic Vagranfile to test a newly built box
 
-Vagrant.configure("2") do |config|
-  config.vm.provider "virtualbox" do |vb|
-    vb.customize ["modifyvm", :id, "--memory", 1024]
-  end
+VAGRANTFILE_API_VERSION = "2"
 
-  config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = "~/.vagrant.d/manifests"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box_url  = "CentOS-6.5-x86_64.box"
+  config.vm.box      = "centos65"
+  config.vm.hostname = "text-centos-65"
+
+  config.vm.network :private_network, ip: "10.1.1.10"
+
+  config.vm.provider :virtualbox do |v|
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["modifyvm", :id, "--memory", 1024]
+    v.customize ["modifyvm", :id, "--cpus"  , 1]
   end
 end

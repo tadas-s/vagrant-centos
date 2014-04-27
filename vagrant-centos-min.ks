@@ -1,8 +1,13 @@
 install
 text
+
 url --url=http://www.mirrorservice.org/sites/mirror.centos.org/6.5/os/x86_64/
+repo --name=epel --baseurl=http://download.fedoraproject.org/pub/epel/6/x86_64/
+repo --name=ius  --baseurl=http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64/
+
 lang en_GB.UTF-8
 keyboard uk
+
 network --onboot yes --device eth0 --bootproto dhcp --noipv6 --hostname vagrant-centos-6.vagrantup.com
 rootpw vagrant
 firewall --disabled
@@ -22,6 +27,12 @@ poweroff --eject
 
 %packages --nobase
 @core
+epel-release
+ius-release
+mc
+wget
+python-setuptools
+ansible
 %end
 
 %post --nochroot
@@ -36,12 +47,20 @@ Defaults:%wheel !requiretty
 %wheel ALL=NOPASSWD: ALL
 EOF
 /bin/chmod 0440 /etc/sudoers.d/wheel
+
+/bin/mkdir /mnt/vbox
+/bin/mount -t iso9660 /dev/sr1 /mnt/vbox
+/mnt/vbox/VBoxLinuxAdditions.run
+/bin/umount /mnt/vbox
+/bin/rmdir /mnt/vbox
+
 /bin/mkdir /home/vagrant/.ssh
 /bin/chmod 700 /home/vagrant/.ssh
-/usr/bin/curl -o /home/vagrant/.ssh/id_rsa https://raw.github.com/mitchellh/vagrant/master/keys/vagrant
-/usr/bin/curl -o /home/vagrant/.ssh/authorized_keys https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub
+/usr/bin/wget -O /home/vagrant/.ssh/id_rsa https://raw.github.com/mitchellh/vagrant/master/keys/vagrant
+/usr/bin/wget -O /home/vagrant/.ssh/authorized_keys https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub
 /bin/chown -R vagrant:vagrant /home/vagrant/.ssh
 /bin/chmod 0400 /home/vagrant/.ssh/*
+
 /bin/echo 'UseDNS no' >> /etc/ssh/sshd_config
 /bin/echo '127.0.0.1   vagrant-centos-6.vagrantup.com' >> /etc/hosts
 /usr/bin/yum -y clean all
