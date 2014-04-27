@@ -1,10 +1,18 @@
 #!/bin/bash
-(( $# < 2 )) && { echo "usage: $0 majorversion minorversion"; exit 1; }
 
-vc_osiso="${HOME}/Downloads/CentOS-${1}.${2}-x86_64-minimal.iso"
-vc_guestiso='/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso'
+# will ask for sudo
+if [ -z "$SUDO_COMMAND" ]
+then
+   echo "sudo please?"
+   sudo $0 $*
+   exit 0
+fi
+
+vc_osiso=`find ./iso/CentOS* | head -n1`
+vc_guestiso="./iso/VBoxGuestAdditions.iso"
+
 vc_vboxbase="${HOME}/VirtualBox VMs"
-vc_basebox="vagrant-centos-${1}-${2}"
+vc_basebox="CentOS-`echo ${vc_osiso} | cut -d "-" -f 2-3`"
 vc_hddbase="${vc_vboxbase}/${vc_basebox}/${vc_basebox}"
 vc_hddfile="${vc_hddbase}.vdi"
 
@@ -15,6 +23,34 @@ checkdir "$HOME"
 checkdir "$vc_vboxbase"
 checkiso "$vc_osiso"
 checkiso "$vc_guestiso"
+
+echo "ISO: ${vc_osiso}"
+echo "Machine name: ${vc_basebox}"
+
+mkdir "./tmp/"
+mkdir "./tmp/${vc_basebox}"
+mkdir "./tmp/${vc_basebox}.build"
+mount -o loop "${vc_osiso}" "./tmp/${vc_basebox}"
+
+cp -r ./tmp/${vc_basebox}/* ./tmp/${vc_basebox}.build/
+cp ./vagrant-centos-min.ks ./tmp/${vc_basebox}.build/ks.cfg
+
+read
+
+mkisofs -o ./${vc_basebox}-ks.iso \
+        -b isolinux/isolinux.bin \
+        -c isolinux/boot.cat \
+        -no-emul-boot \
+        -boot-load-size 4 \
+        -boot-info-table \
+        -J -R \
+        -V "${vc_basebox}" \
+        ./tmp/${vc_basebox}.build/
+
+umount "./tmp/${vc_basebox}"
+rm -rf ./tmp/
+
+vc_osiso="./${vc_basebox}-ks.iso"
 
 VBoxManage -v &> /dev/null || { echo "ERROR: VBoxManage not in path!"; exit 1; }
 
@@ -29,8 +65,7 @@ VBoxManage storageattach "$vc_basebox" --storagectl sata0 --port 0 --type hdd --
 VBoxManage modifyvm "$vc_basebox" --nic1 nat
 VBoxManage startvm "$vc_basebox"
 
-ruby -rsocket -e 'puts "Kickstart URL: ks=http://" + IPSocket.getaddress(Socket.gethostname) + ":8000/vagrant-centos.ks"'
-ruby -rwebrick -e 's=WEBrick::HTTPServer.new(:Port=>8000,:DocumentRoot=>".");trap("INT") { s.shutdown }; s.start'
+echo "enter to continue"; read
 
 vagrant package --base "$vc_basebox" --output "${vc_basebox}.box"
 
