@@ -29,6 +29,9 @@ poweroff --eject
 @core
 epel-release
 ius-release
+kernel-devel
+gcc
+man
 mc
 wget
 python-setuptools
@@ -56,8 +59,8 @@ EOF
 
 /bin/mkdir /home/vagrant/.ssh
 /bin/chmod 700 /home/vagrant/.ssh
-/usr/bin/wget -O /home/vagrant/.ssh/id_rsa https://raw.github.com/mitchellh/vagrant/master/keys/vagrant
-/usr/bin/wget -O /home/vagrant/.ssh/authorized_keys https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub
+/usr/bin/wget --no-check-certificate -O /home/vagrant/.ssh/id_rsa https://raw.github.com/mitchellh/vagrant/master/keys/vagrant
+/usr/bin/wget --no-check-certificate -O /home/vagrant/.ssh/authorized_keys https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub
 /bin/chown -R vagrant:vagrant /home/vagrant/.ssh
 /bin/chmod 0400 /home/vagrant/.ssh/*
 
