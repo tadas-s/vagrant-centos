@@ -46,7 +46,9 @@ cp /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
 %end
 
 %post --log=/root/post-install.log
-/usr/bin/yum -y update
+# Get updates except kernel. Updating kernel will break virtualbox modules and these will not recompile properly without
+# booting into new kernel.
+/usr/bin/yum -y update --exclude=kernel\*
 
 /bin/cat << EOF > /etc/sudoers.d/wheel
 Defaults:%wheel env_keep += "SSH_AUTH_SOCK"
