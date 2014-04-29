@@ -12,6 +12,15 @@ VM_HDD_FILE="${VM_HDD}.vdi"
 checkdir() { [[ ! -d "$1" ]] && { echo "ERROR: missing $1 dir!"; exit 1; } }
 checkiso() { [[ ! -e "$1" ]] && { echo "ERROR: missing $1 file!"; exit 1; } }
 
+wait_vm_quit() {
+    echo "Waiting $1 to power-off"
+    while [ `vboxmanage list runningvms | grep "$1" | wc -l` == "1" ]; do
+        echo -n "."
+        sleep 1
+    done
+    echo "...and it's gone"
+}
+
 checkdir "$HOME"
 checkdir "$VMS_ROOT"
 checkiso "$ISO"
@@ -43,18 +52,18 @@ ISO="./${VM}-ks.iso"
 
 VBoxManage -v &> /dev/null || { echo "ERROR: VBoxManage not in path!"; exit 1; }
 
-VBoxManage createvm --name "$VM" --register
-VBoxManage modifyvm "$VM" --ostype RedHat_64 --memory 1024 --vram 12 --rtcuseutc on --ioapic on
-VBoxManage storagectl "$VM" --name ide0 --add ide
-VBoxManage storageattach "$VM" --storagectl ide0 --device 0 --port 0 --type dvddrive --medium "$ISO"
-VBoxManage storageattach "$VM" --storagectl ide0 --device 0 --port 1 --type dvddrive --medium "$GUEST_ISO"
-VBoxManage storagectl "$VM" --name sata0 --add sata --portcount 1
-VBoxManage createhd --filename "$VM_HDD_FILE" --size 40960
-VBoxManage storageattach "$VM" --storagectl sata0 --port 0 --type hdd --medium "$VM_HDD_FILE"
-VBoxManage modifyvm "$VM" --nic1 nat
-VBoxManage startvm "$VM"
+VBoxManage createvm --name "${VM}" --register
+VBoxManage modifyvm "${VM}" --ostype RedHat_64 --memory 1024 --vram 12 --rtcuseutc on --ioapic on
+VBoxManage storagectl "${VM}" --name ide0 --add ide
+VBoxManage storageattach "${VM}" --storagectl ide0 --device 0 --port 0 --type dvddrive --medium "${ISO}"
+VBoxManage storageattach "${VM}" --storagectl ide0 --device 0 --port 1 --type dvddrive --medium "${GUEST_ISO}"
+VBoxManage storagectl "${VM}" --name sata0 --add sata --portcount 1
+VBoxManage createhd --filename "${VM_HDD_FILE}" --size 40960
+VBoxManage storageattach "${VM}" --storagectl sata0 --port 0 --type hdd --medium "${VM_HDD_FILE}"
+VBoxManage modifyvm "${VM}" --nic1 nat
+VBoxManage startvm "${VM}"
 
-echo "Press ENTER when installation is complete and box has powered off"; read
+wait_vm_quit "${VM}"
 
 vagrant package --base "$VM" --output "${VM}.box"
 
