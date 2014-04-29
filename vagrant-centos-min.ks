@@ -1,9 +1,9 @@
 install
 text
 
-url --url=http://www.mirrorservice.org/sites/mirror.centos.org/6.5/os/x86_64/
-repo --name=epel --baseurl=http://download.fedoraproject.org/pub/epel/6/x86_64/
-repo --name=ius  --baseurl=http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64/
+url --url=http://centos.serverspace.co.uk/centos/6.5/os/x86_64
+repo --name=epel --baseurl=http://download.fedoraproject.org/pub/epel/6/x86_64
+repo --name=ius  --baseurl=http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64
 
 lang en_GB.UTF-8
 keyboard uk
@@ -30,20 +30,24 @@ poweroff --eject
 epel-release
 ius-release
 kernel-devel
+openssh-clients
 gcc
 man
 mc
 wget
 python-setuptools
 ansible
+sudo
+-postfix
 %end
 
 %post --nochroot
 cp /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
 %end
 
-%post
-/usr/bin/yum -y install sudo
+%post --log=/root/post-install.log
+/usr/bin/yum -y update
+
 /bin/cat << EOF > /etc/sudoers.d/wheel
 Defaults:%wheel env_keep += "SSH_AUTH_SOCK"
 Defaults:%wheel !requiretty
@@ -66,6 +70,7 @@ EOF
 
 /bin/echo 'UseDNS no' >> /etc/ssh/sshd_config
 /bin/echo '127.0.0.1   vagrant-centos-6.vagrantup.com' >> /etc/hosts
+
 /usr/bin/yum -y clean all
 /sbin/swapoff -a
 /sbin/mkswap /dev/mapper/vg_vagrantcentos-lv_swap
