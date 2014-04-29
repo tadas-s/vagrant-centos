@@ -65,6 +65,8 @@ VBoxManage startvm "${VM}"
 
 wait_vm_quit "${VM}"
 
+rm "${ISO}"
+
 vagrant package --base "$VM" --output "${VM}.box"
 
 VBoxManage unregistervm "$VM" --delete
