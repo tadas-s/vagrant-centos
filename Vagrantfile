@@ -3,8 +3,6 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-
-  config.vm.box_url  = "CentOS-6.5-x86_64.box"
   config.vm.box      = "centos65"
   config.vm.hostname = "text-centos-65"
 
