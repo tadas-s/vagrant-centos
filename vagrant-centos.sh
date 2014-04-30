@@ -1,5 +1,10 @@
 #!/bin/bash
 
+. ./functions.sh
+
+# Read configuration variable file if it is present
+[ -r "./settings.conf" ] && . ./settings.conf
+
 UNIQ=`date | sha1sum | cut -c 1-7`
 ISO=`find ./iso/CentOS* | head -n1`
 GUEST_ISO="./iso/VBoxGuestAdditions.iso"
@@ -9,32 +14,44 @@ VM="CentOS-`echo ${ISO} | cut -d "-" -f 2-3`-${UNIQ}"
 VM_HDD="${VMS_ROOT}/${VM}/${VM}"
 VM_HDD_FILE="${VM_HDD}.vdi"
 
-checkdir() { [[ ! -d "$1" ]] && { echo "ERROR: missing $1 dir!"; exit 1; } }
-checkiso() { [[ ! -e "$1" ]] && { echo "ERROR: missing $1 file!"; exit 1; } }
+# Some config variables require rewriting / resolving
+if [ ${ENABLE_EPEL_REPOSITORY} == "1" ]; then
+    ENABLE_EPEL_REPOSITORY="repo --name=epel --baseurl=http://download.fedoraproject.org/pub/epel/6/x86_64"
+else
+    ENABLE_EPEL_REPOSITORY=""
+fi
 
-wait_vm_quit() {
-    echo "Waiting $1 to power-off"
-    while [ `vboxmanage list runningvms | grep "$1" | wc -l` == "1" ]; do
-        echo -n "."
-        sleep 1
-    done
-    echo "...and it's gone"
-}
+if [ ${ENABLE_IUS_REPOSITORY} == "1" ]; then
+    ENABLE_IUS_REPOSITORY="repo --name=ius  --baseurl=http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64"
+else
+    ENABLE_IUS_REPOSITORY=""
+fi
+
+if [ -z ${PROXY} ]; then
+    PROXY=""
+else
+    PROXY=" proxy=\"${PROXY}\" "
+fi
+
+shout "Setting up"
 
 checkdir "$HOME"
 checkdir "$VMS_ROOT"
 checkiso "$ISO"
 checkiso "$GUEST_ISO"
-
-echo "ISO: ${ISO}"
-echo "Machine name: ${VM}"
-
 mkdir "./tmp/"
 mkdir "./tmp/${VM}"
+
+shout "Extracting ${ISO}"
+
 7z x -o"./tmp/${VM}" "${ISO}"
 
-cp ./vagrant-centos-min.ks ./tmp/${VM}/ks.cfg
-cp ./isolinux.cfg ./tmp/${VM}/isolinux/isolinux.cfg
+shout "Copying configuration"
+
+render_template ./centos.ks.template > ./tmp/${VM}/ks.cfg
+render_template ./isolinux.cfg.template > ./tmp/${VM}/isolinux/isolinux.cfg
+
+shout "Building custom iso"
 
 mkisofs -o ./${VM}-ks.iso \
         -b isolinux/isolinux.bin \
@@ -46,12 +63,14 @@ mkisofs -o ./${VM}-ks.iso \
         -V "${VM}" \
         ./tmp/${VM}/
 
+shout "Cleanup"
+
 rm -rf ./tmp/
 
+shout "Booting VM to start install"
+
 ISO="./${VM}-ks.iso"
-
 VBoxManage -v &> /dev/null || { echo "ERROR: VBoxManage not in path!"; exit 1; }
-
 VBoxManage createvm --name "${VM}" --register
 VBoxManage modifyvm "${VM}" --ostype RedHat_64 --memory 1024 --vram 12 --rtcuseutc on --ioapic on
 VBoxManage storagectl "${VM}" --name ide0 --add ide
@@ -63,10 +82,16 @@ VBoxManage storageattach "${VM}" --storagectl sata0 --port 0 --type hdd --medium
 VBoxManage modifyvm "${VM}" --nic1 nat
 VBoxManage startvm "${VM}"
 
+shout "Will now wait until it's finished"
+
 wait_vm_quit "${VM}"
 
 rm "${ISO}"
 
+shout "Packaging Vagrant box to '${VM}.box'"
+
 vagrant package --base "$VM" --output "${VM}.box"
 
 VBoxManage unregistervm "$VM" --delete
+
+shout "And we're done"

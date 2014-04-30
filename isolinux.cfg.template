@@ -6,4 +6,4 @@ label linux
   menu label Centos 6.5 kickstart
   menu default
   kernel vmlinuz
-  append initrd=initrd.img ks=cdrom:/ks.cfg text
+  append initrd=initrd.img ks=cdrom:/ks.cfg ${PROXY}

@@ -1,19 +1,19 @@
 install
 text
 
-url --url=http://centos.serverspace.co.uk/centos/6.5/os/x86_64
-repo --name=epel --baseurl=http://download.fedoraproject.org/pub/epel/6/x86_64
-repo --name=ius  --baseurl=http://dl.iuscommunity.org/pub/ius/stable/CentOS/6/x86_64
+url --url=${CENTOS_REPOSITORY}
+${ENABLE_IUS_REPOSITORY}
+${ENABLE_EPEL_REPOSITORY}
 
-lang en_GB.UTF-8
-keyboard uk
+lang ${LOCALE}
+keyboard ${KEYBOARD}
 
 network --onboot yes --device eth0 --bootproto dhcp --noipv6 --hostname vagrant-centos-6.vagrantup.com
 rootpw vagrant
 firewall --disabled
 authconfig --enableshadow --passalgo=sha512
 selinux --disabled
-timezone --utc UTC
+timezone --utc ${TIMEZONE}
 zerombr
 clearpart --all
 part /boot --fstype=ext4 --size=512
@@ -26,19 +26,7 @@ user --name=vagrant --groups=wheel --password=vagrant
 poweroff --eject
 
 %packages --nobase
-@core
-epel-release
-ius-release
-kernel-devel
-openssh-clients
-gcc
-man
-mc
-wget
-python-setuptools
-ansible
-sudo
--postfix
+${PACKAGES}
 %end
 
 %post --nochroot
