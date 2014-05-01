@@ -30,7 +30,29 @@ This is work in progress.
 3. Take a peek at settings.conf file
 4. ./vagrant-centos.sh
 5. Get a coffee, this will take a while. No interaction should be required (it's a kickstart install) unless there's an error
-6. This should produce CentOS-6.5-x86_64-*-ks.box file
+6. This should produce CentOS-6.5-x86_64-*.box file
+
+## Adding and using the box
+
+To use it locally (assuming your project has config.vm.box = "centos65" in Vagrantfile):
+
+```
+vagrant add ./CentOS-6.5-x86_64-33cdcaa.box --name centos65 --force
+cd ../your/project
+vagrant destroy
+vagrant up
+```
+
+This project also has a sample Vagrantfile for test-driving newly built images, so you can simply run:
+
+```
+vagrant add ./CentOS-6.5-x86_64-33cdcaa.box --name centos65 --force
+vagrant destroy
+vagrant up
+vagrant ssh # to look around what's in the box
+```
+
+(note that "33cdcaa" part is unique to build so it will be something different)
 
 ## Credits
 
