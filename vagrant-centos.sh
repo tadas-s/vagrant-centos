@@ -35,10 +35,15 @@ fi
 
 shout "Setting up"
 
-checkdir "$HOME"
-checkdir "$VMS_ROOT"
-checkiso "$ISO"
-checkiso "$GUEST_ISO"
+# Some dependency checks
+directory_exists "${VMS_ROOT}" "Cannot find VirtualBox VM directory ${VMS_ROOT}"
+file_exists "${ISO}" "Cannot find CentOS iso ${ISO}"
+file_exists "${GUEST_ISO}" "Cannot find VirtualBox guest extensions iso ${GUEST_ISO}"
+is_runnable "vboxmanage --version" "Cannot find/run vboxmanage"
+is_runnable "mkisofs --help" "Cannot find/run mkisofs"
+is_runnable "7z -?" "Cannot find/run 7z"
+is_runnable "vagrant --version" "Cannot find/run vagrant"
+
 mkdir "./tmp/"
 mkdir "./tmp/${VM}"
 
@@ -94,4 +99,4 @@ vagrant package --base "$VM" --output "${VM}.box"
 
 VBoxManage unregistervm "$VM" --delete
 
-shout "And we're done"
+shout "And we're done. Box file: ${VM}.box"
