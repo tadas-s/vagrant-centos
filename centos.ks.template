@@ -38,12 +38,20 @@ cp /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
 # booting into new kernel.
 /usr/bin/yum -y update --exclude=kernel\*
 
+# allow ssh remote commands for wheel
 /bin/cat << EOF > /etc/sudoers.d/wheel
 Defaults:%wheel env_keep += "SSH_AUTH_SOCK"
 Defaults:%wheel !requiretty
 %wheel ALL=NOPASSWD: ALL
 EOF
 /bin/chmod 0440 /etc/sudoers.d/wheel
+
+# allow ssh remote commands for root
+/bin/cat << EOF > /etc/sudoers.d/root
+Defaults:%root env_keep += "SSH_AUTH_SOCK"
+Defaults:%root !requiretty
+EOF
+/bin/chmod 0440 /etc/sudoers.d/root
 
 /bin/mkdir /mnt/vbox
 /bin/mount -t iso9660 /dev/sr1 /mnt/vbox
