@@ -85,7 +85,7 @@ VBoxManage storagectl "${VM}" --name sata0 --add sata --portcount 1
 VBoxManage createhd --filename "${VM_HDD_FILE}" --size 40960
 VBoxManage storageattach "${VM}" --storagectl sata0 --port 0 --type hdd --medium "${VM_HDD_FILE}"
 VBoxManage modifyvm "${VM}" --nic1 nat
-VBoxManage startvm "${VM}"
+VBoxManage startvm --type=headless "${VM}"
 
 shout "Will now wait until it's finished"
 
