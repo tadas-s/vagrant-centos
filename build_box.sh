@@ -95,7 +95,7 @@ rm "${ISO}"
 
 shout "Packaging Vagrant box to '${VM}.box'"
 
-vagrant package --base "$VM" --output "${VM}.box"
+vagrant package --base "$VM" --output "${VM}.box" --include metadata.json
 
 VBoxManage unregistervm "$VM" --delete
 
