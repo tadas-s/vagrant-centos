@@ -1,10 +1,8 @@
 # Basic Vagranfile to test a newly built box
 
-VAGRANTFILE_API_VERSION = "2"
-
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box      = "centos65"
-  config.vm.hostname = "text-centos-65"
+Vagrant.configure("2") do |config|
+  config.vm.box      = "centos66"
+  config.vm.hostname = "centos66"
 
   config.vm.network :private_network, ip: "10.1.1.10"
 
