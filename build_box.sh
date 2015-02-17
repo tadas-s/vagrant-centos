@@ -77,12 +77,12 @@ shout "Booting VM to start install"
 ISO="./${VM}-ks.iso"
 VBoxManage -v &> /dev/null || { echo "ERROR: VBoxManage not in path!"; exit 1; }
 VBoxManage createvm --name "${VM}" --register
-VBoxManage modifyvm "${VM}" --ostype RedHat_64 --memory 1024 --vram 12 --rtcuseutc on --ioapic on
+VBoxManage modifyvm "${VM}" --ostype RedHat_64 --memory 2048 --vram 12 --rtcuseutc on --ioapic on
 VBoxManage storagectl "${VM}" --name ide0 --add ide
 VBoxManage storageattach "${VM}" --storagectl ide0 --device 0 --port 0 --type dvddrive --medium "${ISO}"
 VBoxManage storageattach "${VM}" --storagectl ide0 --device 0 --port 1 --type dvddrive --medium "${GUEST_ISO}"
 VBoxManage storagectl "${VM}" --name sata0 --add sata --portcount 1
-VBoxManage createhd --filename "${VM_HDD_FILE}" --size 40960
+VBoxManage createhd --filename "${VM_HDD_FILE}" --size 20480
 VBoxManage storageattach "${VM}" --storagectl sata0 --port 0 --type hdd --medium "${VM_HDD_FILE}"
 VBoxManage modifyvm "${VM}" --nic1 nat
 VBoxManage startvm --type=headless "${VM}"
