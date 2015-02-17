@@ -59,6 +59,8 @@ EOF
 /bin/umount /mnt/vbox
 /bin/rmdir /mnt/vbox
 
+/usr/sbin/useradd vagrant -G wheel
+
 /bin/mkdir /home/vagrant/.ssh
 /bin/chmod 700 /home/vagrant/.ssh
 /usr/bin/wget --no-check-certificate -O /home/vagrant/.ssh/id_rsa https://raw.github.com/mitchellh/vagrant/master/keys/vagrant
