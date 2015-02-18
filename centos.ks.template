@@ -72,6 +72,18 @@ EOF
 /bin/echo 'UseDNS no' >> /etc/ssh/sshd_config
 /bin/echo '127.0.0.1   vagrant-centos-6.vagrantup.com' >> /etc/hosts
 
+# PostgreSQL server
+/usr/bin/yum -y install http://yum.postgresql.org/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-1.noarch.rpm
+/usr/bin/yum -y install postgresql93-server
+/sbin/service postgresql-9.3 initdb
+/sbin/chkconfig postgresql-9.3 on
+
+# RVM
+/usr/bin/gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+/usr/bin/curl -sSL https://get.rvm.io | bash -s stable
+/usr/sbin/usermod --append --groups rvm vagrant
+
+# Zero empty space
 /usr/bin/yum -y clean all
 /sbin/swapoff -a
 /sbin/mkswap /dev/mapper/vg_vagrantcentos-lv_swap

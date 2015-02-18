@@ -1,7 +1,7 @@
 # Basic Vagranfile to test a newly built box
 
 Vagrant.configure("2") do |config|
-  config.vm.box      = "centos66"
+  config.vm.box      = "centos66-postgre"
   config.vm.hostname = "centos66"
 
   config.vm.network :private_network, ip: "10.1.1.10"
