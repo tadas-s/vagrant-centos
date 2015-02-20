@@ -27,6 +27,13 @@ else
     ENABLE_IUS_REPOSITORY=""
 fi
 
+if [ ${ENABLE_PUPPET_REPOSITORY} == "1" ]; then
+    # Kind of dirty
+    ENABLE_PUPPET_REPOSITORY="rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm; yum install -y puppet"
+else
+    ENABLE_PUPPET_REPOSITORY=""
+fi
+
 if [ -z ${PROXY} ]; then
     PROXY=""
 else
@@ -83,7 +90,7 @@ VBoxManage storageattach "${VM}" --storagectl ide0 --device 0 --port 0 --type dv
 VBoxManage storageattach "${VM}" --storagectl ide0 --device 0 --port 1 --type dvddrive --medium "${GUEST_ISO}"
 VBoxManage storagectl "${VM}" --name sata0 --add sata --portcount 1
 VBoxManage createhd --filename "${VM_HDD_FILE}" --size 20480
-VBoxManage storageattach "${VM}" --storagectl sata0 --port 0 --type hdd --medium "${VM_HDD_FILE}"
+VBoxManage storageattach "${VM}" --storagectl sata0 --port 0 --type hdd --nonrotational on --discard on --medium "${VM_HDD_FILE}"
 VBoxManage modifyvm "${VM}" --nic1 nat
 VBoxManage startvm --type=headless "${VM}"
 
@@ -99,4 +106,12 @@ vagrant package --base "$VM" --output "${VM}.box" --include metadata.json
 
 VBoxManage unregistervm "$VM" --delete
 
-shout "And we're done. Box file: ${VM}.box"
+shout "Importing Vagrant box as '${VAGRANT_BOX_NAME}'"
+
+vagrant box add --name="${VAGRANT_BOX_NAME}" -f "./${VM}.box"
+
+shout "Cleaning up!"
+
+rm -f "./${VM}.box"
+
+shout "And we're done."
