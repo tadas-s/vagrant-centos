@@ -1,3 +1,6 @@
 /.vagrant
+/puppet/.librarian
+/puppet/.tmp
+/puppet/modules
 *.iso
 *.box
