@@ -1,8 +1,12 @@
-# Basic Vagranfile to test a newly built box
+require 'yaml'
+
+dir = File.dirname(File.expand_path(__FILE__))
+
+settings = YAML.load_file("#{dir}/build_box.yaml")
 
 Vagrant.configure("2") do |config|
-  config.vm.box      = "centos66"
-  config.vm.hostname = "box.local"
+  config.vm.box      = "#{settings['VAGRANT_BOX_NAME']}-intermediate"
+  config.vm.hostname = "#{settings['HOSTNAME']}"
 
   config.vm.network :private_network, ip: "10.1.1.10"
 

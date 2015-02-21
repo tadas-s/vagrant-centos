@@ -3,8 +3,9 @@
 . ./functions.sh
 
 # Read configuration variable file if it is present
-[ -r "./settings.conf" ] && . ./settings.conf
+[ -r "./build_box.yaml" ] && eval $(parse_yaml "build_box.yaml")
 
+INTERMEDIATE_BOX_NAME="${VAGRANT_BOX_NAME}-intermediate"
 UNIQ=`date | sha1sum | cut -c 1-7`
 ISO=`find ./iso/CentOS* | head -n1`
 GUEST_ISO="./iso/VBoxGuestAdditions.iso"
@@ -39,6 +40,9 @@ if [ -z ${PROXY} ]; then
 else
     PROXY=" proxy=\"${PROXY}\" "
 fi
+
+# Replace space-separated list with \n separators
+PACKAGES=`echo ${PACKAGES} | tr " " "\n"`
 
 shout "Setting up"
 
@@ -106,9 +110,9 @@ vagrant package --base "$VM" --output "${VM}.box" --include metadata.json
 
 VBoxManage unregistervm "$VM" --delete
 
-shout "Importing Vagrant box as '${VAGRANT_BOX_NAME}'"
+shout "Importing Vagrant box as '${INTERMEDIATE_BOX_NAME}'"
 
-vagrant box add --name="${VAGRANT_BOX_NAME}" -f "./${VM}.box"
+vagrant box add --name="${INTERMEDIATE_BOX_NAME}" -f "./${VM}.box"
 
 shout "Cleaning up!"
 

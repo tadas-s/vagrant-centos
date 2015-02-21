@@ -1,0 +1,16 @@
+---
+HOSTNAME: "centos66.local"
+VAGRANT_BOX_NAME: "centos66"
+
+TIMEZONE: "UTC"
+LOCALE: "en_GB.UTF-8"
+KEYBOARD: "uk"
+
+CENTOS_REPOSITORY: "http://www.mirrorservice.org/sites/mirror.centos.org/6.6/os/x86_64"
+PROXY: ""
+
+ENABLE_IUS_REPOSITORY: 1
+ENABLE_EPEL_REPOSITORY: 1
+ENABLE_PUPPET_REPOSITORY: 1
+
+PACKAGES: "@core epel-release ius-release kernel-devel openssh-clients gcc man mc wget python-setuptools sudo nfs-utils acpid -postfix"
